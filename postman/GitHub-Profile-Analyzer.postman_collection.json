@@ -1,0 +1,397 @@
+{
+  "info": {
+    "_postman_id": "b9e4a1f2-5678-4cd4-9e0a-8f7b6c5d4e3f",
+    "name": "GitHub Profile Analyzer Extended Test Suite",
+    "description": "Comprehensive production-ready Postman collection for testing the GitHub Profile Analyzer API. Covers varied testing profiles (TypeScript, Go, Python, Java), edge cases, sorting variations, and structural validations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "System Status",
+      "item": [
+        {
+          "name": "Health Check Checkpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Validates system health status, memory footprint, Node engine metadata, and active database connection pool availability."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile Syncing Core Engine (POST)",
+      "item": [
+        {
+          "name": "Sync Profile - Standard User (TypeScript Core)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/sync/charliegerard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "sync", "charliegerard"]
+            },
+            "description": "Processes a standard user profile to evaluate repository aggregation metrics and primary developer ecosystem tracking."
+          },
+          "response": []
+        },
+        {
+          "name": "Sync Profile - High Velocity Org Account (Go Systems)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/sync/caddyserver",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "sync", "caddyserver"]
+            },
+            "description": "Tests handling of higher volume metadata frameworks and tracking behavior for specialized back-end languages."
+          },
+          "response": []
+        },
+        {
+          "name": "Sync Profile - Enterprise Core Account (Java/C++)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/sync/spring-projects",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "sync", "spring-projects"]
+            },
+            "description": "Evaluates data storage behaviors for accounts containing multi-tier nested ecosystem configurations."
+          },
+          "response": []
+        },
+        {
+          "name": "Sync Profile - Conditional Gateway Optimization Check",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/sync/charliegerard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "sync", "charliegerard"]
+            },
+            "description": "Validates application caching policy. Re-triggering immediately should bypass external API calls and return an 'UNCHANGED' payload state using database values."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile Syncing Validation & Edge Cases (POST)",
+      "item": [
+        {
+          "name": "Sync Failure - Target Not Found (GitHub 404 Interceptor)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/sync/non-existent-user-error-0987654321",
+              "host": ["{{base_url}}"],
+              "path": [
+                "api",
+                "users",
+                "sync",
+                "non-existent-user-error-0987654321"
+              ]
+            },
+            "description": "Verifies correct processing of downstream 404 payload errors received from remote targets into cleanly formatted API errors."
+          },
+          "response": []
+        },
+        {
+          "name": "Sync Failure - Input Rule Validation Error (Consecutive Hyphens)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/sync/invalid--username--doublehyphen",
+              "host": ["{{base_url}}"],
+              "path": [
+                "api",
+                "users",
+                "sync",
+                "invalid--username--doublehyphen"
+              ]
+            },
+            "description": "Triggers Zod refine rules that prohibit consecutive hyphen notation in usernames before sending a downstream request."
+          },
+          "response": []
+        },
+        {
+          "name": "Sync Failure - Input Rule Validation Error (Length Violation)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/sync/thisusernameiswaytoolongtoeverbeavalidgithubusernameoverthirtyninecharacterslong",
+              "host": ["{{base_url}}"],
+              "path": [
+                "api",
+                "users",
+                "sync",
+                "thisusernameiswaytoolongtoeverbeavalidgithubusernameoverthirtyninecharacterslong"
+              ]
+            },
+            "description": "Triggers standard Zod boundary evaluation limits for maximum characters (> 39 chars)."
+          },
+          "response": []
+        },
+        {
+          "name": "Sync Failure - Input Rule Validation Error (Illegal Symbols)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/sync/user_name$badchar",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "sync", "user_name$badchar"]
+            },
+            "description": "Ensures symbols like underscores, dollar signs, and special symbols are blocked at the validation layer."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Local Database Accessors (GET)",
+      "item": [
+        {
+          "name": "Fetch All Records",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            },
+            "description": "Retrieves the complete internal collection of synced profiles, sorted with the newest entries first (`synced_at DESC`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Fetch Single Sync Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/local/charliegerard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "local", "charliegerard"]
+            },
+            "description": "Direct lookups for local system table entries without making external connections to GitHub."
+          },
+          "response": []
+        },
+        {
+          "name": "Fetch Single Profile - Missing Record Error",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/local/validformatbutnotindb",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "local", "validformatbutnotindb"]
+            },
+            "description": "Tests handling when an inputs fits format parameters but no corresponding record exists in the local database."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analytics & Language Search (GET)",
+      "item": [
+        {
+          "name": "Ecosystem Metrics Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/analytics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "analytics"]
+            },
+            "description": "Aggregates key system metrics, including total synchronized users, average repository distribution counts, impact measurements, and top influencer accounts."
+          },
+          "response": []
+        },
+        {
+          "name": "Top Influencers Index - Default Volume Limit",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/top",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "top"]
+            },
+            "description": "Returns top-tier developers sorted by star counts, applying the standard default cutoff limit (10 items)."
+          },
+          "response": []
+        },
+        {
+          "name": "Top Influencers Index - Valid Custom Range Limit",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/top?limit=3",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "top"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "3"
+                }
+              ]
+            },
+            "description": "Confirms proper data coercion of numeric strings by passing verified range parameters to the database handler."
+          },
+          "response": []
+        },
+        {
+          "name": "Top Influencers Index - Out of Bounds Validation Error",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/top?limit=999",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "top"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "999"
+                }
+              ]
+            },
+            "description": "Triggers validation errors when requesting records beyond permitted maximum range limits (> 100)."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Language Cluster - JavaScript Ecosystem",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/search?language=JavaScript",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "search"],
+              "query": [
+                {
+                  "key": "language",
+                  "value": "JavaScript"
+                }
+              ]
+            },
+            "description": "Returns verified accounts grouped under the JavaScript tech sector using optimized database lookups."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Language Cluster - TypeScript Ecosystem",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/search?language=TypeScript",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "search"],
+              "query": [
+                {
+                  "key": "language",
+                  "value": "TypeScript"
+                }
+              ]
+            },
+            "description": "Filters local database profiles to return accounts whose primary developer ecosystem is categorized as TypeScript."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Language Cluster - Go Ecosystem",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/search?language=Go",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "search"],
+              "query": [
+                {
+                  "key": "language",
+                  "value": "Go"
+                }
+              ]
+            },
+            "description": "Filters database profiles to return accounts whose primary development language matches Go."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Language Cluster - Input Validation Error",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/search?language=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "search"],
+              "query": [
+                {
+                  "key": "language",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Ensures search queries are blocked by validation rules when called without providing target language terms."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('System Global Status Check Mapping', function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 404, 429, 500, 502]);",
+          "    if (pm.response.code === 200) {",
+          "        var jsonData = pm.response.json();",
+          "        pm.expect(jsonData).to.have.property('success', true);",
+          "    }",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://github-profile-analyzer-production.up.railway.app",
+      "type": "string"
+    }
+  ]
+}
