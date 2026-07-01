@@ -41,6 +41,14 @@ const detailModal = document.getElementById('detail-modal');
 const modalCloseBtn = document.getElementById('modal-close-btn');
 const modalBody = document.getElementById('modal-body');
 
+// Compare DOM Elements
+const openCompareBtn = document.getElementById('open-compare-btn');
+const compareModal = document.getElementById('compare-modal');
+const compareCloseBtn = document.getElementById('compare-close-btn');
+const compareSelectA = document.getElementById('compare-select-a');
+const compareSelectB = document.getElementById('compare-select-b');
+const compareMatchupContainer = document.getElementById('compare-matchup-container');
+
 // On load
 document.addEventListener('DOMContentLoaded', () => {
   checkHealth();
@@ -138,6 +146,33 @@ function setupEventListeners() {
       detailModal.classList.remove('active');
     }
   });
+
+  // Compare Modal Events
+  openCompareBtn.addEventListener('click', async () => {
+    await populateCompareDropdowns();
+    compareModal.classList.add('active');
+  });
+
+  compareCloseBtn.addEventListener('click', () => {
+    compareModal.classList.remove('active');
+  });
+
+  compareModal.addEventListener('click', (e) => {
+    if (e.target === compareModal) {
+      compareModal.classList.remove('active');
+    }
+  });
+
+  const triggerMatchup = () => {
+    const userALogin = compareSelectA.value;
+    const userBLogin = compareSelectB.value;
+    if (userALogin && userBLogin) {
+      renderMatchup(userALogin, userBLogin);
+    }
+  };
+
+  compareSelectA.addEventListener('change', triggerMatchup);
+  compareSelectB.addEventListener('change', triggerMatchup);
 }
 
 // Check Health
@@ -337,6 +372,24 @@ function renderProfileDetails(dev) {
         <img src="${dev.avatar_url || 'https://github.com/identicons/' + dev.login + '.png'}" alt="${dev.login}" class="profile-avatar-lg" onerror="this.src='https://github.com/identicons/octocat.png'">
         <h2>${dev.name || dev.login}</h2>
         <div class="login">@${dev.login}</div>
+        
+        <!-- Developer Persona Badge -->
+        ${dev.persona_title ? `
+          <div class="persona-badge" style="
+            margin: 12px 0 16px;
+            padding: 8px 14px;
+            background: rgba(255, 0, 127, 0.08);
+            border: 1px solid var(--accent-magenta);
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.12);
+          ">
+            <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-magenta); font-weight: 700;">Developer Persona</div>
+            <div style="font-size: 13px; font-weight: 700; color: #fff; margin-top: 2px;">${dev.persona_title}</div>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px; line-height: 1.3;">${dev.persona_description}</div>
+          </div>
+        ` : ''}
+
         <p class="bio">${dev.bio || 'This developer has no bio set on their public GitHub profile.'}</p>
         
         <div class="meta-details-list">
@@ -391,6 +444,14 @@ function renderProfileDetails(dev) {
           </div>
         </div>
 
+        <!-- Competency Radar Chart -->
+        <div class="section-box">
+          <h3>Developer Competency Index</h3>
+          <div style="height: 190px; position: relative; display: flex; justify-content: center; align-items: center; margin: 5px 0;">
+            <canvas id="competency-chart" style="max-height: 190px; max-width: 100%;"></canvas>
+          </div>
+        </div>
+
         <div class="insights-section">
           <!-- Languages distribution -->
           <div class="section-box">
@@ -411,6 +472,52 @@ function renderProfileDetails(dev) {
       </div>
     </div>
   `;
+
+  // Initialize radar competency chart
+  setTimeout(() => {
+    const ctx = document.getElementById('competency-chart')?.getContext('2d');
+    if (!ctx) return;
+
+    // Calculate dynamic scores between 1 and 10 based on developer's metrics
+    const reposScore = Math.min(10, Math.max(1, Math.ceil(dev.public_repos / 3)));
+    const starsScore = Math.min(10, Math.max(1, Math.ceil(Math.log10((dev.total_stars || 0) + 1) * 2)));
+    const followersScore = Math.min(10, Math.max(1, Math.ceil(Math.log10((dev.followers || 0) + 1) * 2)));
+    const languageScore = Math.min(10, Math.max(1, langEntries.length * 2));
+    const maintenanceScore = Math.min(10, Math.max(1, Math.ceil(parseFloat(dev.avg_stars_per_repo) / 2)));
+
+    new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: ['Coding Volume', 'Star Impact', 'Social Reach', 'Stack Breadth', 'Code Quality'],
+        datasets: [{
+          label: 'Skill Score',
+          data: [reposScore, starsScore, followersScore, languageScore, maintenanceScore],
+          backgroundColor: 'rgba(0, 242, 254, 0.15)',
+          borderColor: '#00f2fe',
+          pointBackgroundColor: '#ff007f',
+          pointBorderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          r: {
+            grid: { color: 'rgba(255, 255, 255, 0.08)' },
+            angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+            pointLabels: { color: '#9ca3af', font: { family: 'Outfit', size: 10, weight: '500' } },
+            ticks: { display: false, stepSize: 2 },
+            min: 0,
+            max: 10
+          }
+        }
+      }
+    });
+  }, 50);
 }
 
 // Helpers
@@ -448,4 +555,134 @@ function formatNumber(num) {
     return (num / 1000).toFixed(1) + 'k';
   }
   return num;
+}
+
+async function populateCompareDropdowns() {
+  try {
+    // Fetch all stored users (limit: 100)
+    const res = await fetch('/api/users?limit=100');
+    const result = await res.json();
+    if (res.ok && result.success) {
+      const users = result.data;
+      const optionsHTML = '<option value="">-- Choose Developer --</option>' + 
+        users.map(u => `<option value="${u.login}">${u.name || u.login} (@${u.login})</option>`).join('');
+      
+      compareSelectA.innerHTML = optionsHTML;
+      compareSelectB.innerHTML = optionsHTML;
+      
+      // Auto select first two if available
+      if (users.length >= 2) {
+        compareSelectA.value = users[0].login;
+        compareSelectB.value = users[1].login;
+        renderMatchup(users[0].login, users[1].login);
+      } else {
+        compareMatchupContainer.style.display = 'none';
+      }
+    }
+  } catch (err) {
+    console.error('Failed to populate compare options', err);
+  }
+}
+
+async function renderMatchup(loginA, loginB) {
+  if (loginA === loginB) {
+    compareMatchupContainer.innerHTML = '<div class="empty-state">Please select two different developers to compare.</div>';
+    compareMatchupContainer.style.display = 'block';
+    return;
+  }
+
+  try {
+    const [resA, resB] = await Promise.all([
+      fetch(`/api/users/local/${loginA}`).then(r => r.json()),
+      fetch(`/api/users/local/${loginB}`).then(r => r.json())
+    ]);
+
+    if (!resA.success || !resB.success) {
+      compareMatchupContainer.innerHTML = '<div class="empty-state">Error loading matchup details.</div>';
+      compareMatchupContainer.style.display = 'block';
+      return;
+    }
+
+    const devA = resA.data;
+    const devB = resB.data;
+
+    // Helper to evaluate winner
+    const compareVal = (valA, valB, higherIsBetter = true) => {
+      const numA = parseFloat(valA) || 0;
+      const numB = parseFloat(valB) || 0;
+      if (numA === numB) return { classA: '', classB: '' };
+      const isAWinner = higherIsBetter ? numA > numB : numA < numB;
+      return {
+        classA: isAWinner ? 'style="color: var(--accent-green); font-weight: 700;"' : 'style="color: var(--text-secondary);"',
+        classB: !isAWinner ? 'style="color: var(--accent-green); font-weight: 700;"' : 'style="color: var(--text-secondary);"'
+      };
+    };
+
+    const starsCmp = compareVal(devA.total_stars, devB.total_stars);
+    const reposCmp = compareVal(devA.public_repos, devB.public_repos);
+    const followersCmp = compareVal(devA.followers, devB.followers);
+    const avgStarsCmp = compareVal(devA.avg_stars_per_repo, devB.avg_stars_per_repo);
+    const ageCmp = compareVal(devA.account_age_years, devB.account_age_years);
+
+    compareMatchupContainer.innerHTML = `
+      <div style="display: grid; grid-template-columns: 1fr 120px 1fr; gap: 15px; align-items: center; border-top: 1px solid var(--border-color); padding-top: 20px;">
+        <!-- Developer A Header -->
+        <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+          <img src="${devA.avatar_url || 'https://github.com/identicons/' + devA.login + '.png'}" class="profile-avatar-lg" style="width: 80px; height: 80px; border-color: var(--accent-cyan);" onerror="this.src='https://github.com/identicons/octocat.png'">
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 8px;">${devA.name || devA.login}</h3>
+          <span style="font-size: 12px; color: var(--accent-cyan);">@${devA.login}</span>
+          <span style="font-size: 11px; background: rgba(139, 92, 246, 0.15); color: var(--accent-blue); padding: 2px 8px; border-radius: 4px; margin-top: 6px; font-weight: 600;">${devA.persona_title || 'Rising Tech'}</span>
+        </div>
+
+        <!-- VS Divider -->
+        <div style="font-size: 20px; font-weight: 800; text-align: center; color: var(--accent-magenta);">VS</div>
+
+        <!-- Developer B Header -->
+        <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+          <img src="${devB.avatar_url || 'https://github.com/identicons/' + devB.login + '.png'}" class="profile-avatar-lg" style="width: 80px; height: 80px; border-color: var(--accent-magenta);" onerror="this.src='https://github.com/identicons/octocat.png'">
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 8px;">${devB.name || devB.login}</h3>
+          <span style="font-size: 12px; color: var(--accent-magenta);">@${devB.login}</span>
+          <span style="font-size: 11px; background: rgba(255, 0, 127, 0.15); color: var(--accent-magenta); padding: 2px 8px; border-radius: 4px; margin-top: 6px; font-weight: 600;">${devB.persona_title || 'Rising Tech'}</span>
+        </div>
+      </div>
+
+      <!-- Matchup Table Grid -->
+      <div style="margin-top: 25px; display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
+        <div style="display: grid; grid-template-columns: 1fr 150px 1fr; text-align: center; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+          <span ${reposCmp.classA}>${devA.public_repos}</span>
+          <strong style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Repositories</strong>
+          <span ${reposCmp.classB}>${devB.public_repos}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 150px 1fr; text-align: center; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+          <span ${starsCmp.classA}>${devA.total_stars}</span>
+          <strong style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Total Stars</strong>
+          <span ${starsCmp.classB}>${devB.total_stars}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 150px 1fr; text-align: center; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+          <span ${followersCmp.classA}>${devA.followers}</span>
+          <strong style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Followers</strong>
+          <span ${followersCmp.classB}>${devB.followers}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 150px 1fr; text-align: center; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+          <span ${avgStarsCmp.classA}>${parseFloat(devA.avg_stars_per_repo).toFixed(1)}</span>
+          <strong style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Avg Stars / Repo</strong>
+          <span ${avgStarsCmp.classB}>${parseFloat(devB.avg_stars_per_repo).toFixed(1)}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 150px 1fr; text-align: center; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+          <span ${ageCmp.classA}>${parseFloat(devA.account_age_years).toFixed(1)} years</span>
+          <strong style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Account Age</strong>
+          <span ${ageCmp.classB}>${parseFloat(devB.account_age_years).toFixed(1)} years</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 150px 1fr; text-align: center; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+          <span style="font-weight: 600;">${devA.top_language || 'N/A'}</span>
+          <strong style="color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Primary Language</strong>
+          <span style="font-weight: 600;">${devB.top_language || 'N/A'}</span>
+        </div>
+      </div>
+    `;
+    compareMatchupContainer.style.display = 'block';
+  } catch (err) {
+    compareMatchupContainer.innerHTML = '<div class="empty-state">Failed to calculate developer matchup.</div>';
+    compareMatchupContainer.style.display = 'block';
+  }
 }

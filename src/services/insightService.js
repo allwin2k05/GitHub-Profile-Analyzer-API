@@ -51,3 +51,64 @@ export function calculateInsights(repositories) {
     topRepositories,
   };
 }
+
+export function determinePersona(profile, insights, repositories) {
+  const stars = insights.totalStars || 0;
+  const reposCount = repositories.length;
+  const topLang = insights.topLanguage || "";
+  const followers = profile.followers || 0;
+
+  if (stars > 1000 || followers > 500) {
+    return {
+      title: "Ecosystem Influencer",
+      description: "A prominent developer with significant reach and high community impact."
+    };
+  }
+
+  const systemsLangs = ["Rust", "Go", "C++", "C", "Zig"];
+  const dataLangs = ["Python", "R", "Julia", "Jupyter Notebook"];
+  const webLangs = ["TypeScript", "JavaScript", "HTML", "CSS"];
+
+  const languagesUsed = Object.keys(insights.languagesDistribution || {});
+  const isPolyglot = languagesUsed.length >= 4;
+
+  if (isPolyglot) {
+    return {
+      title: "Polyglot Pioneer",
+      description: "A versatile developer comfortable working across multiple programming paradigms and stacks."
+    };
+  }
+
+  if (systemsLangs.includes(topLang)) {
+    return {
+      title: "Systems Architect",
+      description: "Focuses on high-performance infrastructure, low-level efficiency, and robust systems."
+    };
+  }
+
+  if (dataLangs.includes(topLang)) {
+    return {
+      title: "Data Alchemist",
+      description: "Extracts value from data, specializes in analytical tooling, machine learning, or scientific workflows."
+    };
+  }
+
+  if (webLangs.includes(topLang)) {
+    return {
+      title: "Modern Web Artisan",
+      description: "Specializes in building responsive user interfaces, fluid web systems, and rich interactive platforms."
+    };
+  }
+
+  if (reposCount > 15) {
+    return {
+      title: "Prolific Builder",
+      description: "Maintains a massive portfolio of diverse repositories and open-source explorations."
+    };
+  }
+
+  return {
+    title: "Rising Technologist",
+    description: "Actively building their digital portfolio and establishing their presence in the developer community."
+  };
+}

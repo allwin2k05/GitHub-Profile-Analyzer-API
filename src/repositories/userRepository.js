@@ -29,10 +29,12 @@ export async function saveUser(user, insights) {
       languages_distribution,
       top_repositories,
       account_age_years,
+      persona_title,
+      persona_description,
       created_at,
       updated_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE
       name = VALUES(name),
       avatar_url = VALUES(avatar_url),
@@ -52,6 +54,8 @@ export async function saveUser(user, insights) {
       languages_distribution = VALUES(languages_distribution),
       top_repositories = VALUES(top_repositories),
       account_age_years = VALUES(account_age_years),
+      persona_title = VALUES(persona_title),
+      persona_description = VALUES(persona_description),
       updated_at = VALUES(updated_at)
   `;
 
@@ -76,6 +80,8 @@ export async function saveUser(user, insights) {
     JSON.stringify(insights.languagesDistribution),
     JSON.stringify(insights.topRepositories),
     insights.accountAgeYears,
+    insights.persona?.title || null,
+    insights.persona?.description || null,
     toMySQLDate(user.created_at),
     toMySQLDate(user.updated_at),
   ];

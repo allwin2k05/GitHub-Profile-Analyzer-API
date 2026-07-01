@@ -21,6 +21,8 @@ CREATE TABLE github_users (
     languages_distribution JSON,
     top_repositories JSON,
     account_age_years DECIMAL(5, 2) DEFAULT 0.00,
+    persona_title VARCHAR(100),
+    persona_description TEXT,
     created_at DATETIME,
     updated_at DATETIME,
     synced_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
